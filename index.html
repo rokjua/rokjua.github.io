@@ -4,254 +4,72 @@
 <meta charset="UTF-8">
 <title>Oma Jarvis</title>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-    background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 100%);
-    color: #e0e0e0;
+    font-family: Arial, sans-serif;
+    background: #1a1a2e;
+    color: white;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
     height: 100vh;
-    display: flex;
-    flex-direction: column;
 }
-
-#header {
-    background: rgba(20, 20, 40, 0.8);
-    backdrop-filter: blur(10px);
-    padding: 15px 20px;
-    border-bottom: 1px solid #2a2a4a;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-#header h1 {
-    color: #4a9eff;
-    font-size: 1.5em;
-}
-
-#settings-btn {
-    background: #2a2a4a;
-    color: #e0e0e0;
-    border: 1px solid #4a4a6a;
-    padding: 8px 15px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 0.9em;
-}
-#settings-btn:hover { background: #3a3a5a; }
-
-#chat {
-    flex: 1;
-    padding: 20px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.msg {
-    padding: 12px 16px;
-    border-radius: 12px;
-    max-width: 80%;
-    line-height: 1.5;
-    word-wrap: break-word;
-}
-
-.user {
-    background: #4a9eff;
-    color: white;
-    align-self: flex-end;
-    margin-left: auto;
-}
-
-.bot {
-    background: #2a2a4a;
-    color: #e0e0e0;
-    align-self: flex-start;
-}
-
-.typing {
-    color: #888;
-    font-style: italic;
-    padding: 8px 16px;
-}
-
-#input-area {
-    padding: 15px;
-    background: rgba(20, 20, 40, 0.9);
-    backdrop-filter: blur(10px);
-    border-top: 1px solid #2a2a4a;
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
-
-#userInput {
-    flex: 1;
-    padding: 12px 16px;
-    border: 1px solid #3a3a5a;
-    border-radius: 10px;
-    background: #1a1a2e;
-    color: #e0e0e0;
-    font-size: 1em;
-}
-#userInput:focus {
-    outline: none;
-    border-color: #4a9eff;
-}
-
-button.action {
-    background: #4a9eff;
-    color: white;
-    border: none;
-    padding: 12px 18px;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 1em;
-}
-button.action:hover { background: #5aaeff; }
-button.action:disabled { background: #444; cursor: not-allowed; }
-
-#modal {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    z-index: 100;
-    justify-content: center;
-    align-items: center;
-}
-#modal.show { display: flex; }
-
-#modal-content {
-    background: #1a1a2e;
-    padding: 30px;
-    border-radius: 12px;
-    max-width: 500px;
-    width: 90%;
-    border: 1px solid #3a3a5a;
-}
-#modal-content h2 {
-    color: #4a9eff;
-    margin-bottom: 15px;
-}
-#modal-content p {
-    margin-bottom: 10px;
-    line-height: 1.5;
-    font-size: 0.95em;
-    color: #b0b0b0;
-}
-#modal-content input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #3a3a5a;
-    border-radius: 8px;
-    background: #0f0f1e;
-    color: #e0e0e0;
-    margin: 15px 0;
-    font-family: monospace;
-}
-#modal-buttons {
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-}
-#error {
-    color: #ff6b6b;
-    font-size: 0.9em;
-    min-height: 1.2em;
-    margin-top: 5px;
-}
+#chat { flex: 1; padding: 20px; overflow-y: auto; }
+.msg { margin: 10px 0; padding: 12px; border-radius: 10px; max-width: 80%; }
+.user { background: #4a9eff; margin-left: auto; }
+.bot { background: #2a2a4a; }
+#input-area { display: flex; padding: 15px; background: #0f0f1e; gap: 10px; }
+input { flex: 1; padding: 12px; border: 1px solid #3a3a5a; border-radius: 8px; background: #1a1a2e; color: white; font-size: 1em; }
+button { padding: 12px 20px; background: #4a9eff; color: white; border: none; border-radius: 8px; cursor: pointer; }
+#key-screen { position: fixed; inset: 0; background: #1a1a2e; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; z-index: 1000; }
+#key-screen input { width: 90%; max-width: 400px; }
+#key-screen button { margin-top: 15px; }
 </style>
 </head>
 <body>
 
-<div id="header">
-    <h1>🤖 Oma Jarvis</h1>
-    <button id="settings-btn" onclick="openSettings()">⚙️ Asetukset</button>
+<div id="key-screen">
+    <h2>🔑 Syötä OpenAI API-avain</h2>
+    <p>Hae avain: <a href="https://platform.openai.com/api-keys" style="color:#4a9eff" target="_blank">platform.openai.com/api-keys</a></p>
+    <input id="apiKey" type="password" placeholder="sk-...">
+    <button id="saveBtn">Aloita chattailu</button>
 </div>
 
-<div id="chat"></div>
-
-<div id="input-area">
-    <input id="userInput" placeholder="Kirjoita viesti..." 
-           onkeypress="if(event.key==='Enter') send()">
-    <button class="action" onclick="startVoice()">🎤</button>
-    <button class="action" onclick="send()">Lähetä</button>
-</div>
-
-<!-- Asetukset-modaali -->
-<div id="modal">
-<div id="modal-content">
-    <h2>🔑 API-avain</h2>
-    <p>Anna OpenAI API-avaimesi. Se tallennetaan <strong>vain tähän selaimeen</strong>, ei minnekään julkiseen.</p>
-    <p>Hae avain: <a href="https://platform.openai.com/api-keys" target="_blank" style="color:#4a9eff">platform.openai.com/api-keys</a></p>
-    <input id="apiKeyInput" type="password" placeholder="sk-...">
-    <div id="error"></div>
-    <div id="modal-buttons">
-        <button class="action" style="background:#555" onclick="closeSettings()">Peruuta</button>
-        <button class="action" onclick="saveKey()">Tallenna</button>
-    </div>
-</div>
+<div id="chat" style="display:none"></div>
+<div id="input-area" style="display:none">
+    <input id="userInput" placeholder="Kirjoita viesti..." onkeypress="if(event.key==='Enter') send()">
+    <button id="sendBtn">Lähetä</button>
 </div>
 
 <script>
-// API-avaimen hallinta
-function getKey() {
-    return localStorage.getItem('openai_key');
-}
+function getKey() { return localStorage.getItem('openai_key'); }
 
 function saveKey() {
-    const key = document.getElementById('apiKeyInput').value.trim();
-    const errorEl = document.getElementById('error');
-    
-    if (!key.startsWith('sk-')) {
-        errorEl.textContent = '❌ Avaimen pitää alkaa "sk-"';
-        return;
+    const key = document.getElementById('apiKey').value.trim();
+    if (!key.startsWith('sk-')) { 
+        alert('Avaimen pitää alkaa "sk-"'); 
+        return; 
     }
-    
     localStorage.setItem('openai_key', key);
-    closeSettings();
-    addMessage('✅ Avain tallennettu! Voit nyt chattailla.', 'bot');
+    startChat();
 }
 
-function openSettings() {
-    document.getElementById('apiKeyInput').value = getKey() || '';
-    document.getElementById('modal').classList.add('show');
+function startChat() {
+    document.getElementById('key-screen').style.display = 'none';
+    document.getElementById('chat').style.display = 'block';
+    document.getElementById('input-area').style.display = 'flex';
+    addMessage('👋 Hei! Olen Jarvis. Miten voin auttaa?', 'bot');
 }
 
-function closeSettings() {
-    document.getElementById('modal').classList.remove('show');
-    document.getElementById('error').textContent = '';
-}
-
-// Viestin lähetys
 async function send() {
     const input = document.getElementById('userInput');
     const text = input.value.trim();
     if (!text) return;
-    
-    const key = getKey();
-    if (!key) {
-        openSettings();
-        return;
-    }
-    
     addMessage(text, 'user');
     input.value = '';
-    
-    const typing = document.createElement('div');
-    typing.className = 'typing';
-    typing.textContent = '🤔 Ajattelee...';
-    typing.id = 'typing';
-    document.getElementById('chat').appendChild(typing);
-    document.getElementById('chat').scrollTop = 999999;
-    
-    const reply = await getAIResponse(text, key);
-    document.getElementById('typing').remove();
-    addMessage(reply, 'bot');
-    speak(reply);
+    addMessage('🤔 Ajattelee...', 'bot');
+    const reply = await getAIResponse(text);
+    const msgs = document.querySelectorAll('.bot');
+    msgs[msgs.length - 1].textContent = reply;
 }
 
 function addMessage(text, who) {
@@ -263,87 +81,33 @@ function addMessage(text, who) {
     chat.scrollTop = chat.scrollHeight;
 }
 
-async function getAIResponse(prompt, key) {
+async function getAIResponse(prompt) {
+    const key = getKey();
     try {
         const res = await fetch('https://api.openai.com/v1/chat/completions', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + key
-            },
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
             body: JSON.stringify({
                 model: 'gpt-4o-mini',
                 messages: [
-                    {role: 'system', content: 'Olet käyttäjän henkilökohtainen Jarvis-avustaja. 
-                                              Vastaa aina suomeksi, ellei käyttäjä pyydä muuta. 
-                                              Ole ystävällinen, älykäs ja auttavainen.'},
+                    {role: 'system', content: 'Olet käyttäjän henkilökohtainen Jarvis-avustaja. Vastaa suomeksi.'},
                     {role: 'user', content: prompt}
                 ],
                 max_tokens: 1000
             })
         });
-        
-        if (!res.ok) {
-            if (res.status === 401) return '❌ Virheellinen API-avain. Tarkista asetukset.';
-            if (res.status === 429) return '⏳ Liikaa pyyntöjä. Odota hetki.';
-            return '❌ Virhe: ' + res.status;
-        }
-        
+        if (!res.ok) return '❌ Virhe ' + res.status + ': Tarkista API-avain';
         const data = await res.json();
         return data.choices[0].message.content;
-    } catch (e) {
-        return '❌ Verkkovirhe: ' + e.message;
-    }
+    } catch (e) { return '❌ Verkkovirhe: ' + e.message; }
 }
 
-// 🎤 Äänikomennot
-function startVoice() {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-        alert('Selaimesi ei tue puheentunnistusta. Kokeile Chromea.');
-        return;
-    }
-    
-    const rec = new SpeechRecognition();
-    rec.lang = 'fi-FI';
-    rec.continuous = false;
-    rec.interimResults = false;
-    
-    rec.onstart = () => {
-        document.querySelector('button[onclick="startVoice()"]').textContent = '🔴';
-    };
-    rec.onresult = (e) => {
-        document.getElementById('userInput').value = e.results[0][0].transcript;
-        send();
-    };
-    rec.onend = () => {
-        document.querySelector('button[onclick="startVoice()"]').textContent = '🎤';
-    };
-    rec.onerror = (e) => {
-        alert('Puheentunnistus epäonnistui: ' + e.error);
-    };
-    
-    rec.start();
-}
+// Liitä napit oikeisiin funktioihin
+document.getElementById('saveBtn').addEventListener('click', saveKey);
+document.getElementById('sendBtn').addEventListener('click', send);
 
-// 🔊 Puhesynteesi
-function speak(text) {
-    if (!('speechSynthesis' in window)) return;
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = 'fi-FI';
-    u.rate = 1.0;
-    speechSynthesis.cancel();
-    speechSynthesis.speak(u);
-}
-
-// Tervetuloviesti
-window.addEventListener('load', () => {
-    if (!getKey()) {
-        openSettings();
-    } else {
-        addMessage('👋 Hei! Olen Jarvis. Miten voin auttaa?', 'bot');
-    }
-});
+// Tarkista onko avain jo tallennettu
+if (getKey()) startChat();
 </script>
 
 </body>
