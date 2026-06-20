@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<title>Oma Jarvis-chat</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #1a1a1a;
+    color: white;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+#chat { flex: 1; padding: 20px; overflow-y: auto; }
+.msg { margin: 10px 0; padding: 10px; border-radius: 8px; max-width: 80%; }
+.user { background: #2a7ae2; margin-left: auto; }
+.bot { background: #444; }
+#input-area { display: flex; padding: 10px; background: #222; }
+input { flex: 1; padding: 10px; border: none; border-radius: 5px; }
+button { padding: 10px 20px; margin-left: 10px; background: #2a7ae2; 
+        color: white; border: none; border-radius: 5px; cursor: pointer; }
+</style>
+</head>
+<body>
+<div id="chat"></div>
+<div id="input-area">
+    <input id="userInput" placeholder="Kirjoita viesti..." 
+           onkeypress="if(event.key==='Enter') send()">
+    <button onclick="send()">Lähetä</button>
+    <button onclick="startVoice()">🎤</button>
+</div>
+
+<script>
+// ⚠️ HUOM: Tarvitset API-avaimen (ks. ohjeet alla)
+const API_KEY = 'SINUN_API_AVAIMESI_TÄHÄN';
+
+async function send() {
+    const input = document.getElementById('userInput');
+    const text = input.value.trim();
+    if (!text) return;
+    
+    addMessage(text, 'user');
+    input.value = '';
+    
+    const reply = await getAIResponse(text);
+    addMessage(reply, 'bot');
+    
+    // Puhu vastaus ääneen
+    speak(reply);
+}
+
+function addMessage(text, who) {
+    const chat = document.getElementById('chat');
+    const div = document.createElement('div');
+    div.className = 'msg ' + who;
+    div.textContent = text;
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+}
+
+async function getAIResponse(prompt) {
+    try {
+        const res = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + API_KEY
+            },
+            body: JSON.stringify({
+                model: 'gpt-4o-mini',
+                messages: [{role: 'user', content: prompt}]
+            })
+        });
+        const data = await res.json();
+        return data.choices[0].message.content;
+    } catch (e) {
+        return 'Virhe: ' + e.message;
+    }
+}
+
+// 🎤 Äänikomennot (selaimen oma puheentunnistus)
+function startVoice() {
+    const rec = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    rec.lang = 'fi-FI';
+    rec.onresult = (e) => {
+        document.getElementById('userInput').value = e.results[0][0].transcript;
+        send();
+    };
+    rec.start();
+}
+
+// 🔊 Puhesynteesi (vastaus ääneen)
+function speak(text) {
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'fi-FI';
+    speechSynthesis.speak(u);
+}
+</script>
+</body>
+</html>
