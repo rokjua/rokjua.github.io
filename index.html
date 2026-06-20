@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<title>Oma Jarvis</title>
+<style>
+body{font-family:Arial;background:#1a1a2e;color:white;margin:0;height:100vh;display:flex;flex-direction:column}
+#chat{flex:1;padding:20px;overflow-y:auto}
+.msg{margin:10px 0;padding:12px;border-radius:10px;max-width:80%}
+.user{background:#4a9eff;margin-left:auto}
+.bot{background:#2a2a4a}
+#input-area{display:flex;padding:15px;background:#0f0f1e;gap:10px}
+input{flex:1;padding:12px;border:1px solid #3a3a5a;border-radius:8px;background:#1a1a2e;color:white;font-size:1em}
+button{padding:12px 20px;background:#4a9eff;color:white;border:none;border-radius:8px;cursor:pointer}
+#key-screen{position:fixed;inset:0;background:#1a1a2e;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:20px;z-index:1000}
+#key-screen input{width:90%;max-width:400px}
+#key-screen button{margin-top:15px}
+</style>
+</head>
+<body>
+<div id="key-screen">
+<h2>Syota OpenAI API-avain</h2>
+<p>Hae: <a href="https://platform.openai.com/api-keys" style="color:#4a9eff">platform.openai.com/api-keys</a></p>
+<input id="apiKey" type="password" placeholder="sk-...">
+<button id="saveBtn">Aloita chattailu</button>
+</div>
+<div id="chat" style="display:none"></div>
+<div id="input-area" style="display:none">
+<input id="userInput" placeholder="Kirjoita viesti..." onkeypress="if(event.key==='Enter') doSend()">
+<button id="sendBtn">Laheta</button>
+</div>
+<script>
+function getKey(){return localStorage.getItem('openai_key')}
+function saveKey(){
+var key=document.getElementById('apiKey').value.trim();
+if(!key.startsWith('sk-')){alert('Avaimen pitaa alkaa sk-');return}
+localStorage.setItem('openai_key',key);
+startChat();
+}
+function startChat(){
+document.getElementById('key-screen').style.display='none';
+document.getElementById('chat').style.display='block';
+document.getElementById('input-area').style.display='flex';
+addMessage('Hei! Olen Jarvis. Miten voin auttaa?','bot');
+}
+function doSend(){
+var input=document.getElementById('userInput');
+var text=input.value.trim();
+if(!text)return;
+addMessage(text,'user');
+input.value='';
+addMessage('Ajattelee...','bot');
+getAIResponse(text).then(function(reply){
+var msgs=document.querySelectorAll('.bot');
+msgs[msgs.length-1].textContent=reply;
+});
+}
+function addMessage(text,who){
+var chat=document.getElementById('chat');
+var div=document.createElement('div');
+div.className='msg '+who;
+div.textContent=text;
+chat.appendChild(div);
+chat.scrollTop=chat.scrollHeight;
+}
+function getAIResponse(prompt){
+var key=getKey();
+return fetch('https://api.openai.com/v1/chat/completions',{
+method:'POST',
+headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+body:JSON.stringify({
+model:'gpt-4o-mini',
+messages:[
+{role:'system',content:'Olet kayttajan henkilokohtainen Jarvis-avustaja. Vastaa suomeksi.'},
+{role:'user',content:prompt}
+],
+max_tokens:1000
+})
+}).then(function(res){
+if(!res.ok)return'Virhe '+res.status+': Tarkista API-avain';
+return res.json().then(function(data){
+return data.choices[0].message.content;
+});
+}).catch(function(e){
+return'Verkkovirhe: '+e.message;
+});
+}
+document.getElementById('saveBtn').addEventListener('click',saveKey);
+document.getElementById('sendBtn').addEventListener('click',doSend);
+if(getKey())startChat();
+</script>
+</body>
+</html>
